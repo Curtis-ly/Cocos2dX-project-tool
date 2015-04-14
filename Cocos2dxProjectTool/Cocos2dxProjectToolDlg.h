@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include "afxwin.h"
 
 
 // CCocos2dxProjectToolDlg ¶Ô»°¿ò
@@ -29,4 +30,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	CEdit edt_project_name;
+	CEdit edt_package_name;
+	CEdit edt_project_path;
+	afx_msg void OnBnClickedButtonChooseDir();
+	afx_msg void OnBnClickedButtonCreate();
 };

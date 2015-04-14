@@ -56,12 +56,17 @@ CCocos2dxProjectToolDlg::CCocos2dxProjectToolDlg(CWnd* pParent /*=NULL*/)
 void CCocos2dxProjectToolDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDIT_PROJECT_NAME, edt_project_name);
+	DDX_Control(pDX, IDC_EDIT_PACKAGE_NAME, edt_package_name);
+	DDX_Control(pDX, IDC_EDIT_PROJECT_PATH, edt_project_path);
 }
 
 BEGIN_MESSAGE_MAP(CCocos2dxProjectToolDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_CHOOSE_DIR, &CCocos2dxProjectToolDlg::OnBnClickedButtonChooseDir)
+	ON_BN_CLICKED(IDC_BUTTON_CREATE, &CCocos2dxProjectToolDlg::OnBnClickedButtonCreate)
 END_MESSAGE_MAP()
 
 
@@ -152,3 +157,52 @@ HCURSOR CCocos2dxProjectToolDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void CCocos2dxProjectToolDlg::OnBnClickedButtonChooseDir()
+{
+	char szPath[MAX_PATH];     //存放选择的目录路径  
+	ZeroMemory(szPath, sizeof(szPath));
+
+	BROWSEINFO bi;
+	bi.hwndOwner = m_hWnd;
+	bi.pidlRoot = NULL;
+	bi.pszDisplayName = szPath;
+	bi.lpszTitle = "请选择工程目录：";
+	bi.ulFlags = 0;
+	bi.lpfn = NULL;
+	bi.lParam = 0;
+	bi.iImage = 0;
+	//弹出选择目录对话框 
+	LPITEMIDLIST lp = SHBrowseForFolder(&bi);
+
+	if (lp && SHGetPathFromIDList(lp, szPath))
+	{
+		SetDlgItemTextA(IDC_EDIT_PROJECT_PATH, szPath);
+	}
+}
+
+
+void CCocos2dxProjectToolDlg::OnBnClickedButtonCreate()
+{
+	// TODO:  在此添加控件通知处理程序代码
+	CString project_name, package_name, project_path;
+	char cmd[1024];
+	ZeroMemory(cmd, sizeof(cmd));
+	GetDlgItemTextA(IDC_EDIT_PROJECT_NAME, project_name);
+	if (project_name.IsEmpty()) {
+		AfxMessageBox("请输入工程名称");
+		return;
+	}
+	GetDlgItemTextA(IDC_EDIT_PACKAGE_NAME, package_name);
+	if (package_name.IsEmpty()) {
+		AfxMessageBox("请输入工程包名");
+		return;
+	}
+	GetDlgItemTextA(IDC_EDIT_PROJECT_PATH, project_path);
+	if (project_path.IsEmpty()) {
+		AfxMessageBox("请选择工程路径");
+		return;
+	}
+	sprintf_s(cmd, "cocos new %s -p %s -l cpp -d %s", project_name, package_name, project_path);
+	system(cmd);
+}
